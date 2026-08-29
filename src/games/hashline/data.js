@@ -18,7 +18,6 @@ export const FACILITIES = [
     icon: 'garage',
     accent: '#F5A623',
     blurb: 'Where it all started — one extension cord and a dream.',
-    scene: 'linear-gradient(135deg, rgba(245,166,35,.16), rgba(245,166,35,0) 65%)',
   },
   {
     name: 'Independent Mining Shop',
@@ -26,7 +25,6 @@ export const FACILITIES = [
     icon: 'shop',
     accent: '#00D9FF',
     blurb: 'A real storefront now. The neighbors still complain about the fan noise.',
-    scene: 'linear-gradient(135deg, rgba(0,217,255,.16), rgba(0,217,255,0) 65%)',
   },
   {
     name: 'Regional Data Center',
@@ -34,7 +32,6 @@ export const FACILITIES = [
     icon: 'dataCenter',
     accent: '#34D399',
     blurb: 'Rows of racks, badge access, and a very serious NDA.',
-    scene: 'linear-gradient(135deg, rgba(52,211,153,.16), rgba(52,211,153,0) 65%)',
   },
   {
     name: 'National Grid Partner',
@@ -42,7 +39,6 @@ export const FACILITIES = [
     icon: 'gridPartner',
     accent: '#B98CFF',
     blurb: "You now have a direct line to the utility company. That's not normal.",
-    scene: 'linear-gradient(135deg, rgba(185,140,255,.18), rgba(185,140,255,0) 65%)',
   },
   {
     name: 'Orbital Consortium',
@@ -50,7 +46,6 @@ export const FACILITIES = [
     icon: 'orbital',
     accent: '#FF6B6B',
     blurb: 'Nobody fully explains this one. The view of Earth is incredible though.',
-    scene: 'linear-gradient(135deg, rgba(255,107,107,.18), rgba(255,107,107,0) 65%)',
   },
 ]
 

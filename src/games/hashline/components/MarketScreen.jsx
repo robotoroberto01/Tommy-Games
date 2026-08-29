@@ -9,6 +9,7 @@ import {
 } from '../data.js'
 import { pct, secondsUntil } from '../format.js'
 import Icon from '../icons.jsx'
+import ScreenHeader from './ScreenHeader.jsx'
 import {
   adBoostActive,
   buyMarketItem,
@@ -213,17 +214,10 @@ function FreeBoost() {
 
 export default function MarketScreen() {
   const [tab, setTab] = useState('spend')
-  const gems = useGame((s) => s.gems)
 
   return (
     <>
-      <div className="screen-head">
-        <span className="screen-title">Market</span>
-        <span className="gem-chip num" style={{ fontSize: 15 }}>
-          <Icon name="gem" size={14} />
-          {gems}
-        </span>
-      </div>
+      <ScreenHeader title="Market" />
 
       {/* Spending gems and buying gems are different jobs. The old shop stacked
           them in one sheet with the thing players actually want listed third. */}

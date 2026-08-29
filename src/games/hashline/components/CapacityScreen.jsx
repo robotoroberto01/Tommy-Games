@@ -1,6 +1,7 @@
 import { INFRA } from '../data.js'
 import { fmt } from '../format.js'
 import Icon from '../icons.jsx'
+import ScreenHeader from './ScreenHeader.jsx'
 import {
   buyInfra,
   coolingCapacity,
@@ -49,12 +50,7 @@ export default function CapacityScreen() {
 
   return (
     <>
-      <div className="screen-head">
-        <span className="screen-title">Capacity</span>
-        <span className="num" style={{ fontSize: 13, fontWeight: 700 }}>
-          {throttle}%
-        </span>
-      </div>
+      <ScreenHeader title="Capacity" />
       <div className="screen-note">
         Every rig draws power and makes heat. Go over either ceiling and
         everything slows down by the same proportion — right now you&apos;re

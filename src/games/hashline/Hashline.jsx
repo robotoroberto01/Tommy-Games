@@ -5,6 +5,7 @@ import MarketScreen from './components/MarketScreen.jsx'
 import NavBar from './components/NavBar.jsx'
 import RebuildScreen from './components/RebuildScreen.jsx'
 import RigsScreen from './components/RigsScreen.jsx'
+import SiteBackdrop from './components/SiteBackdrop.jsx'
 import SitesScreen from './components/SitesScreen.jsx'
 import Toast from './components/Toast.jsx'
 import { startGameLoop } from './store.js'
@@ -41,6 +42,7 @@ export default function Hashline() {
 
   return (
     <div className="hashline">
+      <SiteBackdrop />
       <Screen onNavigate={setTab} />
       <NavBar tab={tab} onChange={setTab} />
       <Toast />

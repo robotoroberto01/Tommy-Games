@@ -1,6 +1,7 @@
 import { FACILITIES } from '../data.js'
 import { fmt } from '../format.js'
 import Icon from '../icons.jsx'
+import ScreenHeader from './ScreenHeader.jsx'
 import {
   prestige,
   prestigeGain,
@@ -35,9 +36,7 @@ export default function RebuildScreen() {
 
   return (
     <>
-      <div className="screen-head">
-        <span className="screen-title">Rebuild</span>
-      </div>
+      <ScreenHeader title="Rebuild" />
 
       <div className="screen flush">
         <div className="prestige-box">

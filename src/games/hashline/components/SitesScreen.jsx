@@ -1,6 +1,7 @@
 import { FACILITIES } from '../data.js'
 import { fmt, formatDuration } from '../format.js'
 import Icon from '../icons.jsx'
+import ScreenHeader from './ScreenHeader.jsx'
 import { secondsToAfford, upgradeFacility, useGame } from '../store.js'
 
 /** Where a site sits relative to where you are now. */
@@ -59,13 +60,7 @@ function Site({ facility, index }) {
 export default function SitesScreen({ onNavigate }) {
   return (
     <>
-      <div className="screen-head">
-        <span className="screen-title">Sites</span>
-        <button type="button" className="back-chip" onClick={() => onNavigate('rigs')}>
-          <Icon name="chevronLeft" size={12} />
-          Back
-        </button>
-      </div>
+      <ScreenHeader title="Sites" back={() => onNavigate('rigs')} />
       <div className="screen-note">
         Each move multiplies every rig&apos;s output by 1.4× and unlocks the next
         tier of hardware. Moving also pays out gems.
