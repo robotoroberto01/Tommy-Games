@@ -6,8 +6,6 @@
 //
 // The rules that *use* these numbers live in store.js.
 
-export const COIN = '🪙'
-
 // ---------------------------------------------------------------------------
 // Facilities — the five sites you move through. Each one multiplies the output
 // of every rig you own (see facilityMultiplier in store.js) and unlocks the
@@ -17,7 +15,7 @@ export const FACILITIES = [
   {
     name: 'Garage Operation',
     cost: 0,
-    icon: '🏚️',
+    icon: 'garage',
     accent: '#F5A623',
     blurb: 'Where it all started — one extension cord and a dream.',
     scene: 'linear-gradient(135deg, rgba(245,166,35,.16), rgba(245,166,35,0) 65%)',
@@ -25,7 +23,7 @@ export const FACILITIES = [
   {
     name: 'Independent Mining Shop',
     cost: 2_000_000,
-    icon: '🏬',
+    icon: 'shop',
     accent: '#00D9FF',
     blurb: 'A real storefront now. The neighbors still complain about the fan noise.',
     scene: 'linear-gradient(135deg, rgba(0,217,255,.16), rgba(0,217,255,0) 65%)',
@@ -33,7 +31,7 @@ export const FACILITIES = [
   {
     name: 'Regional Data Center',
     cost: 500_000_000,
-    icon: '🏢',
+    icon: 'dataCenter',
     accent: '#34D399',
     blurb: 'Rows of racks, badge access, and a very serious NDA.',
     scene: 'linear-gradient(135deg, rgba(52,211,153,.16), rgba(52,211,153,0) 65%)',
@@ -41,7 +39,7 @@ export const FACILITIES = [
   {
     name: 'National Grid Partner',
     cost: 250_000_000_000,
-    icon: '🏭',
+    icon: 'gridPartner',
     accent: '#B98CFF',
     blurb: "You now have a direct line to the utility company. That's not normal.",
     scene: 'linear-gradient(135deg, rgba(185,140,255,.18), rgba(185,140,255,0) 65%)',
@@ -49,7 +47,7 @@ export const FACILITIES = [
   {
     name: 'Orbital Consortium',
     cost: 100_000_000_000_000,
-    icon: '🛰️',
+    icon: 'orbital',
     accent: '#FF6B6B',
     blurb: 'Nobody fully explains this one. The view of Earth is incredible though.',
     scene: 'linear-gradient(135deg, rgba(255,107,107,.18), rgba(255,107,107,0) 65%)',
@@ -69,27 +67,19 @@ export const FACILITIES = [
 // capacity, a Cold Room ADDS cooling capacity.
 // ---------------------------------------------------------------------------
 export const RIGS = [
-  { id: 'hand',    name: 'Hand-Crank',    icon: '🔧',  baseCost: 15,              baseYield: 0.1,         reqLevel: 0, group: 'A', power: 1,     heat: 1 },
-  { id: 'usb',     name: 'USB Miner',     icon: '🔌',  baseCost: 90,              baseYield: 0.65,        reqLevel: 0, group: 'A', power: 2,     heat: 2 },
-  { id: 'gpu',     name: 'GPU Rig',       icon: '🖥️',  baseCost: 650,             baseYield: 4.2,         reqLevel: 0, group: 'A', power: 5,     heat: 6 },
-  { id: 'asic',    name: 'ASIC Box',      icon: '📦',  baseCost: 5_000,           baseYield: 28,          reqLevel: 1, group: 'A', power: 14,    heat: 18 },
-  { id: 'rack',    name: 'Mini Rack',     icon: '🗄️',  baseCost: 40_000,          baseYield: 190,         reqLevel: 1, group: 'B', power: 40,    heat: 52 },
-  { id: 'server',  name: 'Server Rack',   icon: '🖴',   baseCost: 320_000,         baseYield: 1_300,       reqLevel: 2, group: 'B', power: 140,   heat: 180 },
-  { id: 'cold',    name: 'Cold Room',     icon: '❄️',   baseCost: 2_600_000,       baseYield: 9_000,       reqLevel: 2, group: 'B', power: 380,   heat: 120,    coolingBonus: 90 },
-  { id: 'ware',    name: 'Warehouse',     icon: '🏭',  baseCost: 22_000_000,      baseYield: 65_000,      reqLevel: 3, group: 'B', power: 820,   heat: 960 },
-  { id: 'solar',   name: 'Solar Array',   icon: '☀️',   baseCost: 190_000_000,     baseYield: 480_000,     reqLevel: 3, group: 'C', power: 0,     heat: 420,    powerBonus: 600 },
-  { id: 'grid',    name: 'Grid Tap',      icon: '⚡',  baseCost: 1_700_000_000,   baseYield: 3_600_000,   reqLevel: 4, group: 'C', power: 5_600, heat: 4_600 },
-  { id: 'orbit',   name: 'Orbital Relay', icon: '🛰️',  baseCost: 15_000_000_000,  baseYield: 28_000_000,  reqLevel: 4, group: 'C', power: 14_000, heat: 8_600 },
-  { id: 'quantum', name: 'Quantum Core',  icon: '🧊',  baseCost: 140_000_000_000, baseYield: 220_000_000, reqLevel: 4, group: 'C', power: 28_000, heat: 13_500 },
+  { id: 'hand',    name: 'Hand-Crank',    icon: 'handCrank',  baseCost: 15,              baseYield: 0.1,         reqLevel: 0, group: 'A', power: 1,     heat: 1 },
+  { id: 'usb',     name: 'USB Miner',     icon: 'usbMiner',  baseCost: 90,              baseYield: 0.65,        reqLevel: 0, group: 'A', power: 2,     heat: 2 },
+  { id: 'gpu',     name: 'GPU Rig',       icon: 'gpuRig',  baseCost: 650,             baseYield: 4.2,         reqLevel: 0, group: 'A', power: 5,     heat: 6 },
+  { id: 'asic',    name: 'ASIC Box',      icon: 'asicBox',  baseCost: 5_000,           baseYield: 28,          reqLevel: 1, group: 'A', power: 14,    heat: 18 },
+  { id: 'rack',    name: 'Mini Rack',     icon: 'miniRack',  baseCost: 40_000,          baseYield: 190,         reqLevel: 1, group: 'B', power: 40,    heat: 52 },
+  { id: 'server',  name: 'Server Rack',   icon: 'serverRack',   baseCost: 320_000,         baseYield: 1_300,       reqLevel: 2, group: 'B', power: 140,   heat: 180 },
+  { id: 'cold',    name: 'Cold Room',     icon: 'coldRoom',   baseCost: 2_600_000,       baseYield: 9_000,       reqLevel: 2, group: 'B', power: 380,   heat: 120,    coolingBonus: 90 },
+  { id: 'ware',    name: 'Warehouse',     icon: 'warehouse',  baseCost: 22_000_000,      baseYield: 65_000,      reqLevel: 3, group: 'B', power: 820,   heat: 960 },
+  { id: 'solar',   name: 'Solar Array',   icon: 'solarArray',   baseCost: 190_000_000,     baseYield: 480_000,     reqLevel: 3, group: 'C', power: 0,     heat: 420,    powerBonus: 600 },
+  { id: 'grid',    name: 'Grid Tap',      icon: 'gridTap',  baseCost: 1_700_000_000,   baseYield: 3_600_000,   reqLevel: 4, group: 'C', power: 5_600, heat: 4_600 },
+  { id: 'orbit',   name: 'Orbital Relay', icon: 'orbitalRelay',  baseCost: 15_000_000_000,  baseYield: 28_000_000,  reqLevel: 4, group: 'C', power: 14_000, heat: 8_600 },
+  { id: 'quantum', name: 'Quantum Core',  icon: 'quantumCore',  baseCost: 140_000_000_000, baseYield: 220_000_000, reqLevel: 4, group: 'C', power: 28_000, heat: 13_500 },
 ]
-
-// How each orbit ring behaves on the stage. radius is a fraction of the
-// available space, capped at max so it never runs off a wide screen.
-export const ORBIT_RINGS = {
-  A: { radiusFactor: 0.52, maxRadius: 78,  duration: 55,  counterClockwise: false },
-  B: { radiusFactor: 0.76, maxRadius: 118, duration: 80,  counterClockwise: true },
-  C: { radiusFactor: 0.96, maxRadius: 155, duration: 108, counterClockwise: false },
-}
 
 // ---------------------------------------------------------------------------
 // Infrastructure — raises the ceilings that rigs consume.
@@ -98,7 +88,7 @@ export const INFRA = [
   {
     id: 'generator',
     name: 'Generator',
-    icon: '🔋',
+    icon: 'generator',
     desc: 'Raises your power ceiling so more rigs can run at once.',
     baseCost: 2_200,
     growth: 1.16,
@@ -107,7 +97,7 @@ export const INFRA = [
   {
     id: 'coolant',
     name: 'Cooling Unit',
-    icon: '🧊',
+    icon: 'coolingUnit',
     desc: "Raises your cooling ceiling so rigs don't throttle from heat.",
     baseCost: 2_000,
     growth: 1.16,
@@ -125,10 +115,10 @@ export const BASE_COOLING = 8
 export const MAX_MGR_LEVEL = 5
 
 export const MANAGERS = [
-  { id: 'shift', name: 'Shift Supervisor', icon: '🧑‍🔧', group: 'A',  desc: 'Boosts Hand-Crank → ASIC Box.',      baseCost: 150_000,        growth: 2.2 },
-  { id: 'fac',   name: 'Facility Manager', icon: '🧑‍💼', group: 'B',  desc: 'Boosts Mini Rack → Warehouse.',      baseCost: 300_000_000,    growth: 2.2 },
-  { id: 'chief', name: 'Chief Engineer',   icon: '👩‍🔬', group: 'C',  desc: 'Boosts Solar Array → Quantum Core.', baseCost: 45_000_000_000, growth: 2.2 },
-  { id: 'ops',   name: 'Operations Chief', icon: '🧑‍✈️', group: null, desc: 'Speeds up auto-tapping.',            baseCost: 6_000_000,      growth: 2.2 },
+  { id: 'shift', name: 'Shift Supervisor', icon: 'hardHat', group: 'A',  desc: 'Boosts Hand-Crank → ASIC Box.',      baseCost: 150_000,        growth: 2.2 },
+  { id: 'fac',   name: 'Facility Manager', icon: 'clipboard', group: 'B',  desc: 'Boosts Mini Rack → Warehouse.',      baseCost: 300_000_000,    growth: 2.2 },
+  { id: 'chief', name: 'Chief Engineer',   icon: 'flask', group: 'C',  desc: 'Boosts Solar Array → Quantum Core.', baseCost: 45_000_000_000, growth: 2.2 },
+  { id: 'ops',   name: 'Operations Chief', icon: 'headset', group: null, desc: 'Speeds up auto-tapping.',            baseCost: 6_000_000,      growth: 2.2 },
 ]
 
 // ---------------------------------------------------------------------------
@@ -166,15 +156,22 @@ export const MARKET_SECTIONS = [
 // StoreKit / Stripe flow would go — and that is a much bigger conversation.
 // ---------------------------------------------------------------------------
 export const GEM_PACKS = [
-  { id: 'handful', name: 'Handful of Gems', gems: 25,  price: '$1.99',  icon: '◆',    desc: 'A rainy-day stash. Barely a jingle in your pocket.' },
-  { id: 'pouch',   name: 'Pouch of Gems',   gems: 100, price: '$4.99',  icon: '◆◆',   desc: 'Enough to feel like a big spender at the rig shop.', tag: 'Best value' },
-  { id: 'case',    name: 'Case of Gems',    gems: 250, price: '$9.99',  icon: '◆◆◆',  desc: "Somebody's serious about mining now. Respect." },
-  { id: 'vault',   name: 'Vault of Gems',   gems: 600, price: '$19.99', icon: '◆◆◆◆', desc: 'Go big. Skip the small talk entirely.' },
+  { id: 'handful', name: 'Handful of Gems', gems: 25,  price: '$1.99',  tier: 1, desc: 'A rainy-day stash. Barely a jingle in your pocket.' },
+  { id: 'pouch',   name: 'Pouch of Gems',   gems: 100, price: '$4.99',  tier: 2, desc: 'Enough to feel like a big spender at the rig shop.', tag: 'Best value' },
+  { id: 'case',    name: 'Case of Gems',    gems: 250, price: '$9.99',  tier: 3, desc: "Somebody's serious about mining now. Respect." },
+  { id: 'vault',   name: 'Vault of Gems',   gems: 600, price: '$19.99', tier: 4, desc: 'Go big. Skip the small talk entirely.' },
 ]
 
 // ---------------------------------------------------------------------------
 // Timings, in milliseconds.
 // ---------------------------------------------------------------------------
+// How many to buy at once. 'max' resolves per rig to whatever you can afford.
+export const BUY_MODES = [
+  { id: '1', label: '\u00d71', count: 1 },
+  { id: '10', label: '\u00d710', count: 10 },
+  { id: 'max', label: 'MAX', count: 'max' },
+]
+
 export const TICK_MS = 200                       // how often the game loop runs
 export const PASSIVE_AD_INTERVAL_MS = 90_000     // free payout, no interaction
 export const REWARD_AD_COOLDOWN_MS = 150_000
