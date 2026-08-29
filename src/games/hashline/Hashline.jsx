@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AwayBanner from './components/AwayBanner.jsx'
 import CapacityScreen from './components/CapacityScreen.jsx'
 import CrewScreen from './components/CrewScreen.jsx'
 import MarketScreen from './components/MarketScreen.jsx'
@@ -45,6 +46,7 @@ export default function Hashline() {
       <SiteBackdrop />
       <Screen onNavigate={setTab} />
       <NavBar tab={tab} onChange={setTab} />
+      <AwayBanner />
       <Toast />
     </div>
   )

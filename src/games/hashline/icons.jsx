@@ -199,6 +199,7 @@ const PATHS = {
     </>
   ),
   arrowUp: <path d="M12 20V4M5 11l7-7 7 7" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
   chevronRight: <path d="M9 5l7 7-7 7" />,
   chevronLeft: <path d="M15 5l-7 7 7 7" />,
   play: (

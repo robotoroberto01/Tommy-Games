@@ -37,7 +37,9 @@ import {
   MAX_MGR_LEVEL,
   MYSTERY_ITEM,
   MYSTERY_OUTCOMES,
-  OFFLINE_EARN_RATE,
+  OFFLINE_BASE_HOURS,
+  OFFLINE_BASE_RATE,
+  OFFLINE_STANDBY_RATE,
   PASSIVE_AD_INTERVAL_MS,
   REWARD_AD_COOLDOWN_MS,
   REWARD_AD_DURATION_MS,
@@ -277,17 +279,46 @@ let offlineEarningsApplied = false
 function applyOfflineEarnings() {
   if (offlineEarningsApplied) return
   offlineEarningsApplied = true
+  creditTimeAway(state.savedAt)
+}
 
-  if (!state.savedAt || state.maxOfflineHours <= 0) return
-  const elapsedMs = Date.now() - state.savedAt
+/** What fraction of your normal rate you earn while away. */
+export const offlineRate = (s = state) =>
+  s.maxOfflineHours > 0 ? OFFLINE_STANDBY_RATE : OFFLINE_BASE_RATE
+
+/** How long away-earning keeps paying before it stops, in hours. */
+export const offlineWindowHours = (s = state) => OFFLINE_BASE_HOURS + s.maxOfflineHours
+
+// Anything shorter than this isn't worth interrupting you about — you get the
+// coins either way, you just don't get a banner for glancing at another app.
+const AWAY_ANNOUNCE_SECONDS = 60
+
+/**
+ * Credit what was earned between `since` and now, and announce it if it was
+ * long enough to matter.
+ *
+ * Shared by the two ways of coming back — a backgrounded tab returning, and a
+ * fresh page load picking up from the last save — so they can't drift apart.
+ */
+function creditTimeAway(since) {
+  if (!since) return
+  const elapsedMs = Date.now() - since
   if (elapsedMs <= 0) return
 
-  const cappedMs = Math.min(elapsedMs, state.maxOfflineHours * 3_600_000)
-  const earned = ratePerSec(state) * (cappedMs / 1000) * OFFLINE_EARN_RATE
+  const windowMs = offlineWindowHours() * 3_600_000
+  const cappedMs = Math.min(elapsedMs, windowMs)
+  const earned = ratePerSec() * (cappedMs / 1000) * offlineRate()
   if (earned <= 0.0001) return
 
   earn(earned)
-  emitEvent({ type: 'toast', text: `Welcome back — offline earnings: +${coinStr(earned)}` })
+  if (cappedMs / 1000 >= AWAY_ANNOUNCE_SECONDS) {
+    emitEvent({
+      type: 'away',
+      earned,
+      seconds: cappedMs / 1000,
+      cappedOut: elapsedMs > windowMs,
+    })
+  }
 }
 
 export function getState() {
@@ -816,18 +847,7 @@ function handleVisibilityChange() {
   }
 
   if (state.hiddenAt) {
-    const elapsedMs = Date.now() - state.hiddenAt
-    if (state.maxOfflineHours > 0) {
-      const cappedMs = Math.min(elapsedMs, state.maxOfflineHours * 3_600_000)
-      const earned = ratePerSec() * (cappedMs / 1000) * OFFLINE_EARN_RATE
-      if (earned > 0.0001) {
-        earn(earned)
-        emitEvent({
-          type: 'toast',
-          text: `Welcome back — offline earnings: +${coinStr(earned)}`,
-        })
-      }
-    }
+    creditTimeAway(state.hiddenAt)
     state.hiddenAt = 0
   }
 
