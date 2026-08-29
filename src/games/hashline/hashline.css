@@ -870,6 +870,46 @@
     color: var(--violet);
   }
 
+  /* Deliberately plain and unexciting — this wipes everything, so it should
+     never be the most tempting thing on the screen. */
+  .danger-zone {
+    margin-top: 18px;
+    padding: 13px 14px;
+    border: 1px solid rgba(255, 107, 107, 0.22);
+    border-radius: 14px;
+  }
+
+  .danger-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .danger-text {
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 4px 0 10px;
+  }
+
+  .danger-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: var(--red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+
+  .danger-btn:active {
+    background: rgba(255, 107, 107, 0.08);
+  }
+
   /* ----------------------------------------------------------------- market */
   .market-head {
     font-family: 'JetBrains Mono', monospace;

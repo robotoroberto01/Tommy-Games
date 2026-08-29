@@ -69,6 +69,25 @@ re-renders 5 times a second.
 Anything that *happens* rather than *is* — a tap, a toast — goes through
 `subscribeToEvents`, not state.
 
+## Saving
+
+Progress persists to `localStorage` under `hashline.save.v1`. The rules are
+documented in `store.js`; the two that matter when editing:
+
+- **Adding a saved field:** add its name to `SAVED_NUMBERS` (or
+  `SAVED_COUNT_MAPS`). Do **not** bump `SAVE_VERSION` for this — loading merges
+  over defaults, so old saves pick up new fields automatically. Bumping the key
+  wipes everyone's progress and is a last resort, only for when an existing
+  field changes meaning.
+- **Loading must stay defensive.** It iterates the keys `freshState()` defines,
+  range-checks every value, and clamps anything used as an index. Don't replace
+  that with `Object.assign(state, saved)` — a save written before a new rig
+  existed would then leave `rigsOwned` missing that key, and every calculation
+  touching it returns `NaN`.
+
+`nextPassiveAdAt` is deliberately not saved: restoring it would let a player
+farm the free payout by closing and reopening the tab.
+
 ## The gem packs are not real purchases
 
 The `$1.99` / `$4.99` buttons in Hashline's shop are non-functional placeholders.
