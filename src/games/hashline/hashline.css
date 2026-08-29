@@ -401,30 +401,50 @@
     animation: hl-buy-pulse 0.4s ease;
   }
 
-  .row-badge {
-    display: inline-flex;
+  /* How many you own: a bigger, sharper number with a level meter under it.
+     The meter is log-scaled (see litSegments in RigRow) so early purchases
+     visibly move it — on a linear scale your first ten would do nothing. */
+  .owned {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-width: 26px;
-    height: 22px;
-    padding: 0 6px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 800;
-    background: #23232e;
-    color: var(--dim);
+    gap: 5px;
+    width: 42px;
     flex-shrink: 0;
   }
 
-  .row.afford .row-badge {
-    background: var(--accent-dim);
-    color: var(--accent);
+  .owned-count {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--text);
   }
 
-  .row-badge.empty {
-    background: transparent;
-    border: 1.5px dashed #2c2c3a;
+  .owned-count.none {
     color: var(--disabled);
+    font-weight: 500;
+  }
+
+  .owned-meter {
+    display: flex;
+    gap: 1px;
+    width: 100%;
+    height: 4px;
+  }
+
+  .owned-seg {
+    flex: 1;
+    border-radius: 1px;
+    background: #26262f;
+  }
+
+  .owned-seg.lit {
+    background: #4c4c5c;
+  }
+
+  .owned-seg.lit.afford {
+    background: var(--accent);
   }
 
   .row-icon {
@@ -470,6 +490,13 @@
     font-size: 14px;
     font-weight: 700;
     color: var(--dim);
+  }
+
+  /* While the price is climbing after a purchase. Scaled from the right edge so
+     the digits grow back into the row rather than shoving the layout around. */
+  .row-cost.rising {
+    animation: hl-price-rise 0.42s ease-out;
+    transform-origin: right center;
   }
 
   .row.afford .row-cost {
@@ -1179,6 +1206,12 @@
     border-color: var(--warn);
     color: var(--warn);
   }
+}
+
+@keyframes hl-price-rise {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.28); color: #fff3bf; }
+  100% { transform: scale(1); }
 }
 
 @keyframes hl-buy-pulse {
