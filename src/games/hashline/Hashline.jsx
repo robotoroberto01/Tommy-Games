@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AwayBanner from './components/AwayBanner.jsx'
 import CapacityScreen from './components/CapacityScreen.jsx'
 import CrewScreen from './components/CrewScreen.jsx'
+import InactiveTab from './components/InactiveTab.jsx'
 import MarketScreen from './components/MarketScreen.jsx'
 import NavBar from './components/NavBar.jsx'
 import RebuildScreen from './components/RebuildScreen.jsx'
@@ -47,6 +48,9 @@ export default function Hashline() {
       <Screen onNavigate={setTab} />
       <NavBar tab={tab} onChange={setTab} />
       <AwayBanner />
+      {/* Covers everything below it, including the away banner — a passive tab
+          shouldn't be reporting numbers it isn't earning. */}
+      <InactiveTab />
       <Toast />
     </div>
   )

@@ -1105,6 +1105,44 @@
     border-radius: 50%;
   }
 
+  /* --------------------------------------------------------- inactive tab */
+  /* Covers everything on purpose. A passive tab's numbers are frozen, and
+     quietly showing stale figures is the confusion this exists to end. */
+  .inactive {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    background: rgba(11, 11, 16, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .inactive-box {
+    text-align: center;
+    max-width: 300px;
+  }
+
+  .inactive-icon {
+    color: var(--muted);
+    display: inline-flex;
+    margin-bottom: 12px;
+  }
+
+  .inactive-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .inactive-copy {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 8px 0 18px;
+  }
+
   /* ------------------------------------------------------------------- toast */
   .toast {
     position: fixed;

@@ -26,6 +26,7 @@
 // values, call useGame several times.
 
 import { useSyncExternalStore } from 'react'
+import { isActiveTab } from './activeTab.js'
 import {
   BASE_COOLING,
   BASE_POWER,
@@ -118,10 +119,14 @@ function freshState() {
 //    would stop the whole game from starting. If storage isn't available the
 //    game still runs perfectly — it just won't remember anything.
 //
-// Known limitation: the save is per-browser, and two tabs playing at once share
-// it, so whichever saves last wins. Fine for one person on one device, which is
-// what this is. Progress does not follow you to another browser or phone —
-// that would need accounts and a server, which is a much bigger project.
+// Multiple tabs are handled by activeTab.js: exactly one tab runs the game and
+// writes the save, and the others show a "playing in another tab" screen. Both
+// save() and tick() bail out in a passive tab, which is what stops two tabs
+// diverging and overwriting each other.
+//
+// Known limitation: the save is per-browser. Progress does not follow you to
+// another browser or phone — that would need accounts and a server, which is a
+// much bigger project.
 // ---------------------------------------------------------------------------
 
 const SAVE_KEY = 'hashline.save.v1'
@@ -239,12 +244,32 @@ function snapshotForSave() {
   return out
 }
 
-/** Write progress to localStorage. Safe to call as often as you like. */
+/**
+ * Write progress to localStorage. Safe to call as often as you like.
+ *
+ * Does nothing in a tab that isn't the active one. This is the half of the
+ * multi-tab fix that matters most: a passive tab writing its own stale state
+ * is exactly how one tab used to overwrite another tab's progress.
+ */
 export function save() {
+  if (!isActiveTab()) return
   const snapshot = snapshotForSave()
   if (writeStorage(JSON.stringify(snapshot))) {
     state.savedAt = snapshot.savedAt
   }
+}
+
+/**
+ * Adopt whatever is currently in the save.
+ *
+ * Called when this tab takes over from another one, so it starts from the other
+ * tab's progress rather than the stale state it was holding while passive.
+ */
+export function adoptSavedState() {
+  Object.assign(state, loadState())
+  lastTick = Date.now()
+  lastSaveAt = Date.now()
+  emit()
 }
 
 /**
@@ -799,6 +824,14 @@ let runners = 0
 function tick() {
   const now = Date.now()
   state.now = now
+
+  // Only one tab plays. A passive tab keeps its clock current so countdowns
+  // render sensibly, but earns nothing — two tabs both accruing is how they
+  // ended up showing different balances.
+  if (!isActiveTab()) {
+    lastTick = now
+    return
+  }
 
   // Don't accrue income for time the tab spent in the background. Offline
   // earnings are handled separately, and only if you own Standby Protocol.

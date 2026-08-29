@@ -119,8 +119,9 @@ A few things worth knowing about how that works:
 - The save lives **in your browser**, not on a server. It won't follow you to a
   different browser, a different computer, or your phone. Making it do that would
   need accounts and a backend — a much bigger project.
-- Two tabs open at once share one save, and whichever saves last wins. Play in
-  one tab.
+- Open in two tabs and only one plays at a time — the other shows a "playing in
+  another tab" screen with a button to move the game across. That's deliberate:
+  two tabs both running would earn twice and overwrite each other's progress.
 - To wipe everything and start over, there's a **Reset saved progress** button at
   the bottom of the Fork panel. It asks first, and it can't be undone.
 
