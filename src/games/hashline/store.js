@@ -88,7 +88,192 @@ function freshState() {
   }
 }
 
-let state = freshState()
+// ---------------------------------------------------------------------------
+// Saving and loading
+//
+// Progress is written to localStorage every 10 seconds, and immediately when
+// you hide or close the tab. It's read back once when the game first loads.
+//
+// Two things here are deliberate and worth not "simplifying" away:
+//
+// 1. Loading MERGES over the defaults rather than replacing them. It walks the
+//    keys freshState() defines and only takes a saved value when one exists and
+//    looks sane. So if a new rig is added to data.js tomorrow, an old save
+//    still loads — the new rig just starts at 0 instead of coming back
+//    `undefined` and breaking every calculation that touches it.
+//
+// 2. Every localStorage call is wrapped in try/catch. It throws outright in
+//    some browsers (private windows, blocked site data), and an exception here
+//    would stop the whole game from starting. If storage isn't available the
+//    game still runs perfectly — it just won't remember anything.
+//
+// Known limitation: the save is per-browser, and two tabs playing at once share
+// it, so whichever saves last wins. Fine for one person on one device, which is
+// what this is. Progress does not follow you to another browser or phone —
+// that would need accounts and a server, which is a much bigger project.
+// ---------------------------------------------------------------------------
+
+const SAVE_KEY = 'hashline.save.v1'
+const SAVE_VERSION = 1
+const SAVE_INTERVAL_MS = 10_000
+
+// Plain numbers that get saved as-is.
+const SAVED_NUMBERS = [
+  'balance',
+  'lifetimeEarned',
+  'gems',
+  'clickLevel',
+  'facilityLevel',
+  'marketOverclock',
+  'marketEfficiency',
+  'marketMasterLicense',
+  'marketDiamondDrill',
+  'maxOfflineHours',
+  'shards',
+  'adBoostUntil',
+  'incomeBoostUntil',
+  'tapBoostUntil',
+  'rewardAdCooldownUntil',
+  'bonusAdCooldownUntil',
+]
+
+// The "how many of each do I own" maps.
+const SAVED_COUNT_MAPS = ['rigsOwned', 'infraOwned', 'managersLevel', 'marketPurchases']
+
+function readStorage() {
+  try {
+    return window.localStorage.getItem(SAVE_KEY)
+  } catch {
+    return null
+  }
+}
+
+function writeStorage(value) {
+  try {
+    window.localStorage.setItem(SAVE_KEY, value)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function clearStorage() {
+  try {
+    window.localStorage.removeItem(SAVE_KEY)
+  } catch {
+    // Nothing to do — if we can't clear it, we couldn't have written it either.
+  }
+}
+
+const isSaneNumber = (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0
+
+/**
+ * Merge saved counts over defaults, one key at a time.
+ *
+ * Iterating over the DEFAULT keys (not the saved ones) is what makes old saves
+ * survive changes to data.js: keys that no longer exist are dropped, and keys
+ * that didn't exist when the save was written keep their default.
+ */
+function mergeCounts(defaults, saved, max = Infinity) {
+  const out = { ...defaults }
+  if (!saved || typeof saved !== 'object') return out
+  for (const key of Object.keys(defaults)) {
+    if (isSaneNumber(saved[key])) out[key] = Math.min(saved[key], max)
+  }
+  return out
+}
+
+function loadState() {
+  const base = freshState()
+  const raw = readStorage()
+  if (!raw) return base
+
+  let saved
+  try {
+    saved = JSON.parse(raw)
+  } catch {
+    // A corrupt save is worse than none — drop it rather than half-loading it.
+    clearStorage()
+    return base
+  }
+  if (!saved || typeof saved !== 'object') return base
+
+  for (const field of SAVED_NUMBERS) {
+    if (isSaneNumber(saved[field])) base[field] = saved[field]
+  }
+
+  base.rigsOwned = mergeCounts(base.rigsOwned, saved.rigsOwned)
+  base.infraOwned = mergeCounts(base.infraOwned, saved.infraOwned)
+  base.managersLevel = mergeCounts(base.managersLevel, saved.managersLevel, MAX_MGR_LEVEL)
+  base.marketPurchases = mergeCounts(base.marketPurchases, saved.marketPurchases)
+
+  // Clamp anything that indexes into a fixed list, so a bad save can't crash
+  // the game by pointing at a facility that doesn't exist.
+  base.facilityLevel = Math.min(Math.floor(base.facilityLevel), FACILITIES.length - 1)
+
+  base.savedAt = isSaneNumber(saved.savedAt) ? saved.savedAt : 0
+  return base
+}
+
+function snapshotForSave() {
+  const out = { version: SAVE_VERSION, savedAt: Date.now() }
+  for (const field of SAVED_NUMBERS) out[field] = state[field]
+  for (const map of SAVED_COUNT_MAPS) out[map] = { ...state[map] }
+  return out
+}
+
+/** Write progress to localStorage. Safe to call as often as you like. */
+export function save() {
+  const snapshot = snapshotForSave()
+  if (writeStorage(JSON.stringify(snapshot))) {
+    state.savedAt = snapshot.savedAt
+  }
+}
+
+/**
+ * Wipe the save and start completely over — shards, gems and Market purchases
+ * included. This is the escape hatch, not the prestige button.
+ */
+export function resetProgress() {
+  clearStorage()
+  Object.assign(state, freshState())
+  emitEvent({ type: 'toast', text: 'Progress reset — starting fresh' })
+  emit()
+}
+
+let state = loadState()
+
+// Set once the closed-tab payout has been handled, so it can't pay twice.
+let offlineEarningsApplied = false
+
+/**
+ * Credit coins earned while the game was closed.
+ *
+ * Called from startGameLoop rather than at module load, for two reasons: the
+ * multiplier helpers it needs are const arrow functions defined further down
+ * this file and aren't initialised yet at load time, and nothing is listening
+ * for the toast until the components have mounted.
+ *
+ * The rule is exactly the same one used when returning to a backgrounded tab:
+ * it only pays out if Standby Protocol has been bought, at 20% of normal rate,
+ * capped at the window that item grants. Before saving existed that upgrade
+ * could never really pay off, because closing the tab lost everything anyway.
+ */
+function applyOfflineEarnings() {
+  if (offlineEarningsApplied) return
+  offlineEarningsApplied = true
+
+  if (!state.savedAt || state.maxOfflineHours <= 0) return
+  const elapsedMs = Date.now() - state.savedAt
+  if (elapsedMs <= 0) return
+
+  const cappedMs = Math.min(elapsedMs, state.maxOfflineHours * 3_600_000)
+  const earned = ratePerSec(state) * (cappedMs / 1000) * OFFLINE_EARN_RATE
+  if (earned <= 0.0001) return
+
+  earn(earned)
+  emitEvent({ type: 'toast', text: `Welcome back — offline earnings: +${coinStr(earned)}` })
+}
 
 export function getState() {
   return state
@@ -413,6 +598,7 @@ export function watchRewardAd() {
 
 let timer = null
 let lastTick = Date.now()
+let lastSaveAt = Date.now()
 let runners = 0
 
 function tick() {
@@ -445,12 +631,23 @@ function tick() {
     state.nextAutoTapAt = now + Math.max(1500, 4000 - state.managersLevel.ops * 450)
   }
 
+  // Write progress periodically. Hiding or closing the tab saves immediately
+  // too, so this is really just insurance against a crash or a lost tab.
+  if (now - lastSaveAt >= SAVE_INTERVAL_MS) {
+    save()
+    lastSaveAt = now
+  }
+
   emit()
 }
 
 function handleVisibilityChange() {
   if (document.hidden) {
     state.hiddenAt = Date.now()
+    // Save the moment the tab goes away. On mobile especially, this is often
+    // the last code that runs before the browser discards the page.
+    save()
+    lastSaveAt = Date.now()
     return
   }
 
@@ -475,37 +672,58 @@ function handleVisibilityChange() {
   emit()
 }
 
+function handlePageHide() {
+  save()
+}
+
 /** Start the loop. Returns a stop function. Safe to call more than once. */
 export function startGameLoop() {
   runners++
   if (runners === 1) {
     lastTick = Date.now()
+    lastSaveAt = Date.now()
     timer = setInterval(tick, TICK_MS)
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    // 'pagehide' is the reliable one for closing a tab. 'beforeunload' is not
+    // fired at all in some mobile browsers, which is exactly the case that
+    // matters most here.
+    window.addEventListener('pagehide', handlePageHide)
   }
+
+  // Runs once per page load, after the components are mounted and listening.
+  applyOfflineEarnings()
+  emit()
+
   return () => {
     runners--
     if (runners === 0) {
       clearInterval(timer)
       timer = null
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('pagehide', handlePageHide)
+      // Leaving the game is itself a good moment to persist.
+      save()
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// WANT TO ADD SAVING?
+// IF YOU CHANGE WHAT GETS SAVED
 //
-// Right now the game starts fresh on every page load — nothing is written to
-// disk. That is deliberate for this first version, not an oversight, but it is
-// the most obvious next feature (and Standby Protocol's offline earnings only
-// really pay off once progress survives a reload).
+// Adding a new number to the game? If it should survive a reload, add its name
+// to SAVED_NUMBERS near the top. If it's a "how many do you own" map, add it to
+// SAVED_COUNT_MAPS. Anything not in those lists resets on every load, which is
+// the right answer for temporary things.
 //
-// It is a small change and this is where it goes:
-//   1. In tick(), every ~10 seconds: localStorage.setItem('hashline', JSON.stringify(state))
-//   2. In freshState(), read that key back and merge it over the defaults.
+// You do NOT need to bump SAVE_VERSION to add a field — loading merges over the
+// defaults, so old saves pick up the new field's default automatically. Only
+// bump it (and the 'hashline.save.v1' key with it) if you change the *meaning*
+// of an existing field in a way that would make old saves wrong. Bumping the
+// key wipes everyone's progress, so it's a last resort.
 //
-// Merge rather than replace — if you load an old save into a newer version of
-// the game that added a new rig, a plain replace leaves rigsOwned missing that
-// rig's key and the game will break on undefined.
+// Deliberately NOT saved:
+//   nextPassiveAdAt  — restored fresh, otherwise closing and reopening the tab
+//                      would trigger the free payout instantly, over and over
+//   now, hiddenAt,
+//   nextAutoTapAt    — purely moment-to-moment bookkeeping
 // ---------------------------------------------------------------------------

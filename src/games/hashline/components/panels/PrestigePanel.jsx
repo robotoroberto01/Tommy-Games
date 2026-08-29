@@ -4,6 +4,7 @@ import {
   prestige,
   prestigeGain,
   prestigeUnlocked,
+  resetProgress,
   shardMultiplier,
   useGame,
 } from '../../store.js'
@@ -21,6 +22,14 @@ export default function PrestigePanel() {
         `This resets your balance, rigs, generators/cooling, manager levels, and facility tier. Shards and Market purchases are kept.`,
     )
     if (ok) prestige()
+  }
+
+  function handleReset() {
+    const ok = window.confirm(
+      'Erase your saved game and start from zero?\n\n' +
+        'This wipes everything, including Genesis Shards, gems and Market purchases. It cannot be undone.',
+    )
+    if (ok) resetProgress()
   }
 
   return (
@@ -54,6 +63,17 @@ export default function PrestigePanel() {
         Forking resets your balance, rigs, generators, cooling, manager levels, and
         facility tier back to Garage Operation. Genesis Shards and anything bought
         in the Market are kept.
+      </div>
+
+      <div className="danger-zone">
+        <div className="danger-title">Start completely over</div>
+        <p className="danger-text">
+          Wipes your saved game — shards, gems and Market purchases included.
+          This is not the same as forking, and it can&apos;t be undone.
+        </p>
+        <button type="button" className="danger-btn" onClick={handleReset}>
+          Reset saved progress
+        </button>
       </div>
     </>
   )

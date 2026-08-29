@@ -108,6 +108,21 @@ then just grants the gems. There is no payment code anywhere in this project and
 no payment provider connected. If you ever want real purchases, that's a much
 bigger conversation — don't just wire a payment form to those buttons.
 
-**Progress isn't saved yet.** Reloading the page starts a fresh run. Adding
-saving is a small change and there are instructions for exactly how at the bottom
-of `src/games/hashline/store.js`.
+**Progress saves automatically.** It's written to your browser every 10 seconds
+and whenever you close or hide the tab, so you pick up where you left off. If you
+own Standby Protocol, you also collect earnings for the time you were away, at
+20% rate, up to the window that upgrade gives you.
+
+A few things worth knowing about how that works:
+
+- The save lives **in your browser**, not on a server. It won't follow you to a
+  different browser, a different computer, or your phone. Making it do that would
+  need accounts and a backend — a much bigger project.
+- Two tabs open at once share one save, and whichever saves last wins. Play in
+  one tab.
+- To wipe everything and start over, there's a **Reset saved progress** button at
+  the bottom of the Fork panel. It asks first, and it can't be undone.
+
+If you change what the game stores, read the note at the bottom of
+`src/games/hashline/store.js` first — it explains how to add a field without
+breaking anyone's existing save.
