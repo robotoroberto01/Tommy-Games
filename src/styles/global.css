@@ -1,0 +1,41 @@
+/* Site-wide basics. Anything specific to a single game belongs in that game's
+   own CSS file, not here. */
+
+:root {
+  --site-bg: #0b0e14;
+  --site-panel: #121824;
+  --site-line: #1e2836;
+  --site-text: #e6edf3;
+  --site-muted: #6b7785;
+  --site-cyan: #00d9ff;
+  --site-gold: #f5a623;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
