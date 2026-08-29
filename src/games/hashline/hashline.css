@@ -385,7 +385,10 @@
     flex-shrink: 0;
   }
 
-  .row.afford {
+  /* The ring means "buying this right now actually helps" — not merely that you
+     can pay for it. A row you can afford but shouldn't buy keeps its yellow
+     price (you do have the money) and loses the ring. */
+  .row.worth {
     box-shadow: inset 0 0 0 1.5px var(--accent);
   }
 
@@ -481,6 +484,12 @@
     font-weight: 600;
   }
 
+  /* Over a ceiling but still net positive: worth flagging, not worth alarming
+     about. Amber rather than red, because red only ever means "don't". */
+  .row-meta.soft {
+    color: #c9a94a;
+  }
+
   .row-right {
     text-align: right;
     flex-shrink: 0;
@@ -540,9 +549,13 @@
   }
 
   .tap-coin {
-    width: 104px;
-    height: 104px;
+    /* Sized for two thumbs side by side rather than one finger. Scales down on
+       narrow phones so it never crowds out the rig list underneath. */
+    width: min(152px, 42vw);
+    height: min(152px, 42vw);
     border-radius: 50%;
+    /* Kills the double-tap-to-zoom wait, so fast tapping stays fast. */
+    touch-action: manipulation;
     background: var(--accent);
     color: var(--accent-ink);
     display: flex;
@@ -566,7 +579,7 @@
   }
 
   .tap-coin-value {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     opacity: 0.6;
     margin-top: 1px;

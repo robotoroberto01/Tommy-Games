@@ -151,7 +151,9 @@ function TapCoin() {
         if (event.type !== 'tap') return
         const id = nextId.current++
         const jitter = Math.random() * 44 - 22
-        setFloats((current) => [...current, { id, value: event.value, jitter }])
+        // Capped: two thumbs going flat out can queue dozens inside the 900ms
+        // lifetime, and past a dozen on screen they're just mush.
+        setFloats((current) => [...current, { id, value: event.value, jitter }].slice(-14))
         setTimeout(() => setFloats((c) => c.filter((f) => f.id !== id)), 900)
       }),
     [],
@@ -164,8 +166,35 @@ function TapCoin() {
           +{fmt(f.value)}
         </div>
       ))}
-      <button type="button" className="tap-coin" onClick={tap} aria-label="Mine">
-        <Icon name="hashCoin" size={42} />
+      {/*
+        onPointerDown, NOT onClick.
+
+        A browser synthesises only ONE click per touch sequence, so tapping with
+        two thumbs at once on the same element gave you one tap, not two.
+        pointerdown fires once per pointer — every finger, every time — so both
+        thumbs count and fast alternating taps all land.
+
+        It also removes the wait for the click to be recognised, so the coin
+        responds on contact rather than on release.
+
+        There's no onClick alongside it: that would double-count the first
+        finger, since the browser fires both.
+      */}
+      <button
+        type="button"
+        className="tap-coin"
+        onPointerDown={tap}
+        onKeyDown={(event) => {
+          // Buttons normally tap on Enter/Space via a synthetic click, which we
+          // no longer listen for — so handle it here to keep it operable.
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            tap()
+          }
+        }}
+        aria-label="Mine"
+      >
+        <Icon name="hashCoin" size={54} />
         <span className="tap-coin-value num">+{value}</span>
       </button>
       <TapUpgrade />
