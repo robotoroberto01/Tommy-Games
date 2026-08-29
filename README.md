@@ -110,8 +110,9 @@ bigger conversation — don't just wire a payment form to those buttons.
 
 **Progress saves automatically.** It's written to your browser every 10 seconds
 and whenever you close or hide the tab, so you pick up where you left off. If you
-own Standby Protocol, you also collect earnings for the time you were away, at
-20% rate, up to the window that upgrade gives you.
+close or background it, the rigs keep earning — at 10% of your normal rate, for
+up to 2 hours. Standby Protocol in the Market doubles that rate and adds 2 more
+hours each time you buy it.
 
 A few things worth knowing about how that works:
 

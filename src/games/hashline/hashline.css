@@ -1050,6 +1050,61 @@
     border-radius: 9px;
   }
 
+  /* -------------------------------------------------------- while you were away */
+  /* Sits over the content and stays until dismissed. Green, because it is
+     income — the same thing the rate line means. */
+  .away {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 12px 12px 14px;
+    border-radius: 14px;
+    background: #14211a;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(74, 222, 128, 0.45),
+      0 12px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .away-icon {
+    color: var(--income);
+    display: flex;
+  }
+
+  .away-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .away-title {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--income);
+  }
+
+  .away-meta {
+    display: block;
+    font-size: 11px;
+    color: #7f9f8b;
+    margin-top: 3px;
+  }
+
+  .away-close {
+    color: #7f9f8b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+  }
+
   /* ------------------------------------------------------------------- toast */
   .toast {
     position: fixed;

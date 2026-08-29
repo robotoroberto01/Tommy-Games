@@ -129,7 +129,7 @@ export const MARKET_ITEMS = [
   { id: 'turbo',     name: 'Turbo Charge',            desc: '2x income for 15 minutes. Stacks with itself.',                              baseCost: 35,    growth: 1.18, kind: 'temp' },
   { id: 'frenzy',    name: 'Tap Frenzy',              desc: '3x tap value for 5 minutes. Stacks with itself.',                            baseCost: 25,    growth: 1.18, kind: 'temp' },
   { id: 'jumpstart', name: 'Cash Jumpstart',          desc: 'Instantly credits 10 minutes of your current income rate.',                  baseCost: 70,    growth: 1.4,  kind: 'util', oneShot: true },
-  { id: 'standby',   name: 'Standby Protocol',        desc: "Lets the rigs keep grinding while you're gone. Grants offline earnings (20% rate) for a while after you leave. Stacks to extend the window.", baseCost: 180, growth: 1.55, kind: 'util' },
+  { id: 'standby',   name: 'Standby Protocol',        desc: "Doubles what you earn while away — 10% becomes 20% — and adds 2h to how long it keeps paying. Stacks.", baseCost: 180, growth: 1.55, kind: 'util' },
   { id: 'overclock', name: 'Golden Overclock',        desc: '+10% tap value, permanently. Stacks.',                                       baseCost: 150,   growth: 1.6,  kind: 'perm' },
   { id: 'license',   name: 'Efficiency License',      desc: '+5% income from all rigs, permanently. Stacks.',                             baseCost: 250,   growth: 1.6,  kind: 'perm' },
   { id: 'master',    name: 'Master Engineer License', desc: '+25% income from all rigs, permanently. For operators who take the smell of hot silicon personally.', baseCost: 2_200, growth: 1.9, kind: 'perm' },
@@ -213,7 +213,21 @@ export const REWARD_AD_COOLDOWN_MS = 150_000
 export const REWARD_AD_DURATION_MS = 180_000
 export const BONUS_AD_COOLDOWN_MS = 300_000
 export const AD_PLAYBACK_MS = 1_400              // fake "ad is playing" delay
-export const OFFLINE_EARN_RATE = 0.2             // 20% of normal rate while away
+// ---------------------------------------------------------------------------
+// Earning while you're away.
+//
+// This used to be all-or-nothing: no Standby Protocol meant you earned exactly
+// nothing with the app closed. For an idle game that's backwards — idling is
+// the premise, and a player who backgrounds the app and comes back to an
+// unchanged number reasonably thinks it's broken.
+//
+// So everyone now earns something while away, and Standby Protocol upgrades it
+// rather than switching it on: it doubles the rate and adds to the window each
+// time you buy it. Owners are strictly better off than they were before.
+// ---------------------------------------------------------------------------
+export const OFFLINE_BASE_RATE = 0.1      // everyone, as a fraction of normal
+export const OFFLINE_STANDBY_RATE = 0.2   // once Standby Protocol is owned
+export const OFFLINE_BASE_HOURS = 2       // everyone; Standby adds 2h per purchase
 export const TICKER_ROTATE_MS = 4_200
 
 export const TICKER_MESSAGES = [
