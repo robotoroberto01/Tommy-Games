@@ -1,0 +1,215 @@
+/* The front page at /. Scoped under .arcade so it can't affect any game. */
+
+.arcade {
+  position: relative;
+  min-height: 100dvh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 20px calc(env(safe-area-inset-bottom) + 40px);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+
+  .arcade-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(60% 32% at 50% 0%, rgba(0, 217, 255, 0.12), transparent 65%),
+      radial-gradient(50% 30% at 100% 40%, rgba(185, 140, 255, 0.1), transparent 60%),
+      radial-gradient(60% 34% at 0% 90%, rgba(52, 211, 153, 0.09), transparent 60%);
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .arcade-head {
+    margin-bottom: 34px;
+  }
+
+  .arcade-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--site-muted);
+    margin-bottom: 18px;
+  }
+
+  .arcade-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--site-cyan);
+    box-shadow: 0 0 10px var(--site-cyan);
+  }
+
+  .arcade-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(34px, 9vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+    line-height: 1.05;
+    background: linear-gradient(120deg, #e6edf3 20%, #7ec8ff 65%, #b98cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .arcade-sub {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--site-muted);
+    max-width: 46ch;
+  }
+
+  .arcade-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+
+  .arcade-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+    border: 1px solid var(--site-line);
+    transition: border-color 0.25s, transform 0.15s, box-shadow 0.25s;
+  }
+
+  .arcade-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--accent) 14%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .arcade-card:active {
+    transform: translateY(0) scale(0.995);
+  }
+
+  .arcade-card-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    background: radial-gradient(
+      circle at 32% 28%,
+      color-mix(in srgb, var(--accent) 32%, transparent),
+      color-mix(in srgb, var(--accent) 5%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .arcade-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .arcade-card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+  }
+
+  .arcade-card-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-top: 3px;
+  }
+
+  .arcade-card-blurb {
+    margin: 9px 0 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--site-muted);
+  }
+
+  .arcade-card-cta {
+    flex-shrink: 0;
+    align-self: flex-end;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .arcade-soon {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 20px;
+    border: 1px dashed var(--site-line);
+    opacity: 0.55;
+  }
+
+  .arcade-soon-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--site-muted);
+    border: 1px dashed var(--site-line);
+  }
+
+  .arcade-soon-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .arcade-soon-text {
+    font-size: 12.5px;
+    color: var(--site-muted);
+    margin-top: 2px;
+  }
+
+  .arcade-foot {
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--site-muted);
+  }
+
+  .arcade-foot-dim {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 520px) {
+  .arcade {
+    padding-top: 34px;
+
+    .arcade-card {
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .arcade-card-cta {
+      width: 100%;
+      text-align: right;
+    }
+  }
+}
