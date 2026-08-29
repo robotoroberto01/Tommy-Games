@@ -35,6 +35,8 @@ import {
   MANAGERS,
   MARKET_ITEMS,
   MAX_MGR_LEVEL,
+  MYSTERY_ITEM,
+  MYSTERY_OUTCOMES,
   OFFLINE_EARN_RATE,
   PASSIVE_AD_INTERVAL_MS,
   REWARD_AD_COOLDOWN_MS,
@@ -68,6 +70,13 @@ function freshState() {
       MARKET_ITEMS.filter((i) => !i.oneShot).map((i) => [i.id, 0]),
     ),
     shards: 0,
+    // Mystery Crate — see buyMysteryItem() below for what these mean.
+    mysteryPurchases: 0,
+    mysteryIncomeBonus: 0,
+    mysteryIncomeMult: 1,
+    mysteryIncomeMultUntil: 0,
+    mysteryTapMult: 1,
+    mysteryTapMultUntil: 0,
     // The current time, refreshed by the loop.
     //
     // Countdowns (ad cooldowns, boost timers) read this instead of calling
@@ -130,6 +139,12 @@ const SAVED_NUMBERS = [
   'marketDiamondDrill',
   'maxOfflineHours',
   'shards',
+  'mysteryPurchases',
+  'mysteryIncomeBonus',
+  'mysteryIncomeMult',
+  'mysteryIncomeMultUntil',
+  'mysteryTapMult',
+  'mysteryTapMultUntil',
   'adBoostUntil',
   'incomeBoostUntil',
   'tapBoostUntil',
@@ -333,7 +348,7 @@ export function useGame(selector) {
 export const facilityMultiplier = (s = state) => Math.pow(1.4, s.facilityLevel)
 export const shardMultiplier = (s = state) => 1 + s.shards * 0.02
 export const efficiencyMultiplier = (s = state) =>
-  1 + 0.05 * s.marketEfficiency + 0.25 * s.marketMasterLicense
+  1 + 0.05 * s.marketEfficiency + 0.25 * s.marketMasterLicense + s.mysteryIncomeBonus
 export const overclockMultiplier = (s = state) =>
   1 + 0.1 * s.marketOverclock + 0.3 * s.marketDiamondDrill
 
@@ -352,6 +367,18 @@ export const managerCost = (m, s = state) =>
 export function marketCost(item, s = state) {
   const level = item.oneShot ? 0 : s.marketPurchases[item.id]
   return Math.ceil(item.baseCost * Math.pow(item.growth, level))
+}
+
+/** Price of the next Mystery Crate — grows the same way every other repeatable
+ *  Market item does: baseCost * growth ^ (number already bought). */
+export const mysteryCost = (s = state) =>
+  Math.ceil(MYSTERY_ITEM.baseCost * Math.pow(MYSTERY_ITEM.growth, s.mysteryPurchases))
+
+/** The odds of each outcome, as a fraction of 1. Read off the weights so
+ *  rebalancing data.js updates what the Market screen shows. */
+export function mysteryOdds() {
+  const total = MYSTERY_OUTCOMES.reduce((sum, o) => sum + o.weight, 0)
+  return MYSTERY_OUTCOMES.map((o) => ({ ...o, chance: o.weight / total }))
 }
 
 /** A manager adds +50% per level to every rig in its group. */
@@ -412,6 +439,7 @@ export function ratePerSec(s = state) {
   total *= throttleMultiplier(s)
   if (adBoostActive(s)) total *= 2
   if (incomeBoostActive(s)) total *= 2
+  if (s.now < s.mysteryIncomeMultUntil) total *= s.mysteryIncomeMult
   return total
 }
 
@@ -424,6 +452,7 @@ export function clickValue(s = state) {
     shardMultiplier(s)
   if (adBoostActive(s)) value *= 2
   if (tapBoostActive(s)) value *= 3
+  if (s.now < s.mysteryTapMultUntil) value *= s.mysteryTapMult
   return value
 }
 
@@ -458,12 +487,71 @@ export function buyClickUpgrade() {
   emit()
 }
 
-export function buyRig(rig) {
-  const cost = rigCost(rig)
+/**
+ * What buying `count` more of a rig costs, all at once.
+ *
+ * Each one costs 15% more than the last, so buying N in a row is a geometric
+ * series rather than N x the current price:
+ *
+ *   base x (1.15^N - 1) / 0.15      where base is the price of the next one
+ *
+ * With N = 1 that reduces to exactly `base`, so this is safe to use everywhere.
+ */
+export function bulkRigCost(rig, count, s = state) {
+  const growth = 1.15
+  const base = rig.baseCost * Math.pow(growth, s.rigsOwned[rig.id])
+  return (base * (Math.pow(growth, count) - 1)) / (growth - 1)
+}
+
+/** The most of a rig you could buy right now — the inverse of bulkRigCost. */
+export function maxAffordableRigs(rig, s = state) {
+  const growth = 1.15
+  const base = rig.baseCost * Math.pow(growth, s.rigsOwned[rig.id])
+  if (s.balance < base) return 0
+  return Math.floor(
+    Math.log(1 + (s.balance * (growth - 1)) / base) / Math.log(growth),
+  )
+}
+
+/** Turn a buy mode ('1', '10', 'max') into a number for this particular rig. */
+export function resolveBuyCount(rig, mode, s = state) {
+  if (mode === 'max') return maxAffordableRigs(rig, s)
+  return Number(mode) || 1
+}
+
+/**
+ * What your power and cooling would look like after buying `count` more.
+ *
+ * Returns how far OVER each ceiling you'd end up, so a row can warn you before
+ * you buy rather than leaving you to notice the throttle afterwards.
+ */
+export function capacityAfterBuy(rig, count, s = state) {
+  const power = powerUsed(s) + (rig.power || 0) * count
+  const heat = heatGenerated(s) + (rig.heat || 0) * count
+  const powerCap = powerCapacity(s) + (rig.powerBonus || 0) * count
+  const coolCap = coolingCapacity(s) + (rig.coolingBonus || 0) * count
+  return {
+    powerShort: Math.max(0, Math.round(power - powerCap)),
+    heatShort: Math.max(0, Math.round(heat - coolCap)),
+  }
+}
+
+export function buyRig(rig, count = 1) {
+  const n = Math.max(0, Math.floor(count))
+  if (n === 0) return
+  const cost = bulkRigCost(rig, n)
   if (state.balance < cost) return
   state.balance -= cost
-  state.rigsOwned[rig.id]++
+  state.rigsOwned[rig.id] += n
   emit()
+}
+
+/** How long until you could afford `target`, in seconds. */
+export function secondsToAfford(target, s = state) {
+  if (s.balance >= target) return 0
+  const rate = ratePerSec(s)
+  if (rate <= 0) return Infinity
+  return (target - s.balance) / rate
 }
 
 export function buyInfra(item) {
@@ -546,6 +634,82 @@ export function buyMarketItem(item) {
 export function grantSimulatedGems(pack) {
   state.gems += pack.gems
   emitEvent({ type: 'toast', text: `Simulated purchase: +${pack.gems} gems` })
+  emit()
+}
+
+// ---------------------------------------------------------------------------
+// Mystery Crate
+//
+// Every other purchase in this file does one fixed thing. This one rolls
+// against MYSTERY_OUTCOMES (in data.js) and does whatever comes up.
+//
+// Temporary effects don't stack with each other — opening a second crate
+// while one is still running just replaces it with the new roll, instead of
+// multiplying an unbounded chain of active effects together. That keeps a
+// player from being able to guarantee a huge number by chain-buying crates.
+// ---------------------------------------------------------------------------
+
+/** Pick one outcome, weighted by its `weight` field. */
+function rollMysteryOutcome() {
+  const totalWeight = MYSTERY_OUTCOMES.reduce((sum, o) => sum + o.weight, 0)
+  let roll = Math.random() * totalWeight
+  for (const outcome of MYSTERY_OUTCOMES) {
+    if (roll < outcome.weight) return outcome
+    roll -= outcome.weight
+  }
+  return MYSTERY_OUTCOMES[MYSTERY_OUTCOMES.length - 1] // rounding fallback
+}
+
+/** Apply an outcome to state and return a short description for the toast. */
+function applyMysteryOutcome(outcome) {
+  const rate = ratePerSec()
+
+  switch (outcome.kind) {
+    case 'instant_gain': {
+      const amount = rate * outcome.seconds
+      earn(amount)
+      return `+${coinStr(amount)}`
+    }
+    case 'instant_loss': {
+      const amount = Math.min(state.balance, rate * outcome.seconds)
+      state.balance -= amount
+      return `-${coinStr(amount)}`
+    }
+    case 'temp_income_buff':
+    case 'temp_income_debuff':
+    case 'jackpot':
+    case 'disaster': {
+      state.mysteryIncomeMult = outcome.multiplier
+      state.mysteryIncomeMultUntil = Date.now() + outcome.minutes * 60_000
+      if (outcome.instantSeconds) earn(rate * outcome.instantSeconds)
+      return outcome.multiplier >= 1
+        ? `${outcome.multiplier}x income for ${outcome.minutes}m`
+        : `income down to ${Math.round(outcome.multiplier * 100)}% for ${outcome.minutes}m`
+    }
+    case 'temp_tap_buff': {
+      state.mysteryTapMult = outcome.multiplier
+      state.mysteryTapMultUntil = Date.now() + outcome.minutes * 60_000
+      return `${outcome.multiplier}x tap for ${outcome.minutes}m`
+    }
+    case 'perm_income_buff': {
+      state.mysteryIncomeBonus += outcome.value
+      return `+${Math.round(outcome.value * 100)}% income, permanently`
+    }
+    default:
+      return ''
+  }
+}
+
+/** Open a Mystery Crate: pay gems, roll an outcome, apply it, toast the result. */
+export function buyMysteryItem() {
+  const cost = mysteryCost()
+  if (state.gems < cost) return
+  state.gems -= cost
+  state.mysteryPurchases++
+
+  const outcome = rollMysteryOutcome()
+  const detail = applyMysteryOutcome(outcome)
+  emitEvent({ type: 'toast', text: `${outcome.label} — ${detail}`, tone: outcome.kind })
   emit()
 }
 

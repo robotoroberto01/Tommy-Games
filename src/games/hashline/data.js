@@ -141,11 +141,51 @@ export const MARKET_ITEMS = [
   { id: 'diamond',   name: 'Diamond Drill',           desc: '+30% tap value, permanently. Overkill, in the best way.',                     baseCost: 1_800, growth: 1.9,  kind: 'perm' },
 ]
 
+// Grouped by what they DO for you rather than by category jargon.
 export const MARKET_SECTIONS = [
-  { kind: 'temp', label: 'Temporary Boosts' },
-  { kind: 'util', label: 'Utility' },
-  { kind: 'perm', label: 'Permanent Upgrades' },
+  { kind: 'perm', label: 'KEEPS WORKING' },
+  { kind: 'util', label: 'ONE-OFF' },
+  { kind: 'temp', label: 'RUNS OUT' },
 ]
+
+// ---------------------------------------------------------------------------
+// Mystery Crate — a single gem-cost item with a random payoff each time.
+//
+// Unlike everything else in the Market, buying this doesn't do one fixed
+// thing — it rolls against MYSTERY_OUTCOMES below and applies whichever one
+// comes up. The `weight` values are relative, not percentages (they just need
+// to sum sensibly against each other); store.js turns them into odds.
+//
+// Most rolls land close to "you got your gems' worth". A rare roll swings
+// hard in your favor (jackpot), and an equally rare one hurts (disaster) —
+// that mix is the whole point of a mystery item.
+//
+// The weights happen to sum to 1000, so each one is already a per-mille
+// chance. The Market screen reads them straight off this list rather than
+// hardcoding percentages, so rebalancing here updates the odds shown there.
+// ---------------------------------------------------------------------------
+export const MYSTERY_ITEM = {
+  id: 'mystery',
+  name: 'Mystery Crate',
+  icon: 'crate',
+  desc: "Nobody knows what's inside until you open it. Could be a windfall, could be a wiring fire.",
+  baseCost: 40,
+  growth: 1.22,
+}
+
+export const MYSTERY_OUTCOMES = [
+  { id: 'burst',         label: 'Odd Signal Burst',     kind: 'instant_gain',       weight: 280, seconds: 60 },
+  { id: 'drain',         label: 'Static Drain',         kind: 'instant_loss',       weight: 230, seconds: 45 },
+  { id: 'boost',         label: 'Resonance Boost',      kind: 'temp_income_buff',   weight: 150, multiplier: 1.5, minutes: 4 },
+  { id: 'interference',  label: 'Signal Interference',  kind: 'temp_income_debuff', weight: 150, multiplier: 0.6, minutes: 4 },
+  { id: 'overcharge',    label: 'Overcharged Contact',  kind: 'temp_tap_buff',      weight: 70,  multiplier: 4,   minutes: 3 },
+  { id: 'calibration',   label: 'Stable Calibration',   kind: 'perm_income_buff',   weight: 70,  value: 0.02 },
+  { id: 'jackpot',       label: 'Quantum Jackpot',      kind: 'jackpot',            weight: 25,  multiplier: 8,   minutes: 5, instantSeconds: 300 },
+  { id: 'disaster',      label: 'Critical Malfunction', kind: 'disaster',           weight: 25,  multiplier: 0.25, minutes: 3 },
+]
+
+// Which outcomes read as a bad result — used only to colour the odds list.
+export const MYSTERY_BAD_KINDS = ['instant_loss', 'temp_income_debuff', 'disaster']
 
 // ---------------------------------------------------------------------------
 // Gem packs — PROTOTYPE ONLY.

@@ -96,11 +96,11 @@ it before pushing.
 
 ### Hashline — Idle Mining Co.
 
-An idle game. Tap the hub to mine, buy rigs that orbit it, and keep power and
-cooling ahead of your rig count or your output gets throttled. Work up through
-five sites from a garage to orbit, hire managers to boost each tier, then "fork
-the chain" to trade your progress for Genesis Shards that make the next run
-faster.
+An idle game. Tap to mine, buy rigs from the list, and keep power and cooling
+ahead of what your rigs draw or your output gets throttled. Work up through five
+sites from a garage to orbit, level up your crew to boost each tier, and open a
+Mystery Crate if you're feeling lucky. When you've gone as far as you can,
+rebuild for Genesis Shards that make the next run faster.
 
 **Note on the gem packs:** the `$1.99` / `$4.99` buttons in the shop are
 placeholders and charge nobody anything. Tapping one shows a dialog saying so,
