@@ -3,11 +3,15 @@
  * Idle games get to absurd numbers fast, so this goes up to quadrillions.
  */
 export function fmt(n) {
-  if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q'
-  if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T'
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M'
-  if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K'
+  // Each threshold sits a hair BELOW the round number on purpose. Cutting over
+  // at exactly 1e6 meant 999,999.99 divided by 1e3 rounded to 1000.00 and
+  // printed "1000.00K" — a unit too small. Comparing against 999.995 promotes
+  // it to "1.00M" instead. Same at every boundary.
+  if (n >= 999.995e12) return (n / 1e15).toFixed(2) + 'Q'
+  if (n >= 999.995e9) return (n / 1e12).toFixed(2) + 'T'
+  if (n >= 999.995e6) return (n / 1e9).toFixed(2) + 'B'
+  if (n >= 999.995e3) return (n / 1e6).toFixed(2) + 'M'
+  if (n >= 999.995) return (n / 1e3).toFixed(2) + 'K'
   return n.toFixed(2)
 }
 
@@ -20,6 +24,27 @@ export function fmt(n) {
  * because plenty of call sites read better saying "coinStr" than "fmt".
  */
 export function coinStr(n) {
+  return fmt(n)
+}
+
+/**
+ * The big balance at the top of the screen.
+ *
+ * Deliberately NOT fmt(). fmt shortens anything over a thousand, which means at
+ * 1,340 coins it shows "1.34K" — and a +0.10 tap then changes nothing on screen
+ * for a hundred taps. Tapping has to feel like it did something.
+ *
+ * So: full digits with separators while they still fit, and only then fall back
+ * to shortening. By the time the number is that big, income dwarfs a single tap
+ * anyway and there's nothing left to show.
+ */
+export function fmtBalance(n) {
+  if (n < 1e6) {
+    return n.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  }
   return fmt(n)
 }
 

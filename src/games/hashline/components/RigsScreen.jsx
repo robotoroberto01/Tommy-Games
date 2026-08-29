@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BUY_MODES, FACILITIES, RIGS } from '../data.js'
-import { fmt, formatDuration, secondsUntil } from '../format.js'
+import { fmt, fmtBalance, formatDuration, secondsUntil } from '../format.js'
 import Icon from '../icons.jsx'
 import RigRow from './RigRow.jsx'
 import {
+  buyClickUpgrade,
+  clickUpgradeCost,
   clickValue,
   coolingCapacity,
   heatGenerated,
@@ -129,8 +131,15 @@ function ThrottleWarning() {
   )
 }
 
-/** The fixed tap plate, and the numbers that float off it. */
-function TapPlate() {
+/**
+ * The coin you tap, and the numbers that float off it.
+ *
+ * A circle rather than a bar on purpose — it's the shape the whole
+ * tap-a-thing-repeatedly genre uses, and a round target reads as something you
+ * hit rather than a button you press once. It's centred and fixed, so it never
+ * moves under your thumb the way the old orbiting rigs did.
+ */
+function TapCoin() {
   const value = useGame((s) => fmt(clickValue(s)))
   const [floats, setFloats] = useState([])
   const nextId = useRef(0)
@@ -140,7 +149,7 @@ function TapPlate() {
       subscribeToEvents((event) => {
         if (event.type !== 'tap') return
         const id = nextId.current++
-        const jitter = Math.random() * 40 - 20
+        const jitter = Math.random() * 44 - 22
         setFloats((current) => [...current, { id, value: event.value, jitter }])
         setTimeout(() => setFloats((c) => c.filter((f) => f.id !== id)), 900)
       }),
@@ -154,19 +163,47 @@ function TapPlate() {
           +{fmt(f.value)}
         </div>
       ))}
-      <button type="button" className="tap-plate" onClick={tap}>
-        <Icon name="bolt" size={20} />
-        MINE
-        <span className="tap-value num">+{value}</span>
+      <button type="button" className="tap-coin" onClick={tap} aria-label="Mine">
+        <Icon name="hashCoin" size={42} />
+        <span className="tap-coin-value num">+{value}</span>
       </button>
+      <TapUpgrade />
     </div>
+  )
+}
+
+/**
+ * Makes each tap worth more — 1.35x per level.
+ *
+ * It sits directly under the coin because that's the thing it upgrades. Putting
+ * it anywhere else means nobody finds it, which is exactly what happened when
+ * the redesign first shipped without it.
+ */
+function TapUpgrade() {
+  const level = useGame((s) => s.clickLevel)
+  const cost = useGame((s) => fmt(clickUpgradeCost(s)))
+  const afford = useGame((s) => s.balance >= clickUpgradeCost(s))
+
+  return (
+    <button
+      type="button"
+      className={`tap-upgrade${afford ? ' afford' : ''}`}
+      onClick={buyClickUpgrade}
+      disabled={!afford}
+    >
+      <Icon name="arrowUp" size={12} />
+      <span>Upgrade tap</span>
+      <span className="num" style={{ opacity: 0.75 }}>
+        Lv {level} · {cost}
+      </span>
+    </button>
   )
 }
 
 export default function RigsScreen({ onNavigate }) {
   const [mode, setMode] = useState('1')
 
-  const balance = useGame((s) => fmt(s.balance))
+  const balance = useGame((s) => fmtBalance(s.balance))
   const rate = useGame((s) => fmt(ratePerSec(s)))
   const gems = useGame((s) => s.gems)
   const level = useGame((s) => s.facilityLevel)
@@ -241,7 +278,7 @@ export default function RigsScreen({ onNavigate }) {
         ))}
       </div>
 
-      <TapPlate />
+      <TapCoin />
     </>
   )
 }
