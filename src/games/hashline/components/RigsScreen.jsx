@@ -15,6 +15,7 @@ import {
   powerUsed,
   ratePerSec,
   secondsToAfford,
+  valueRanking,
   subscribeToEvents,
   tap,
   tapBoostActive,
@@ -220,6 +221,12 @@ export default function RigsScreen({ onNavigate }) {
   const unlocked = RIGS.filter((rig) => rig.reqLevel <= level)
   const visibleRigs = RIGS.slice(0, unlocked.length + 2)
 
+  // Which rig repays itself fastest right now. Ranking has to happen here
+  // rather than per-row, since a row can't see the others. The selector returns
+  // just the winning id — a string, so it stays a primitive and only changes
+  // when the answer actually changes.
+  const bestValue = useGame((s) => valueRanking(mode, s)[0] ?? '')
+
   return (
     <>
       <div className="topbar">
@@ -274,7 +281,7 @@ export default function RigsScreen({ onNavigate }) {
 
       <div className="screen">
         {visibleRigs.map((rig) => (
-          <RigRow key={rig.id} rig={rig} mode={mode} />
+          <RigRow key={rig.id} rig={rig} mode={mode} best={rig.id === bestValue} />
         ))}
       </div>
 

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { FACILITIES } from '../data.js'
-import { fmt } from '../format.js'
+import { fmt, formatDuration } from '../format.js'
 import Icon from '../icons.jsx'
 import {
   buyRig,
   bulkRigCost,
   capacityAfterBuy,
+  paybackSeconds,
   resolveBuyCount,
   useGame,
 } from '../store.js'
@@ -56,7 +57,7 @@ function OwnedMeter({ owned, afford }) {
  * balance — so it re-renders when affordability flips, not on every one of the
  * five ticks a second where the balance merely went up a bit.
  */
-export default function RigRow({ rig, mode }) {
+export default function RigRow({ rig, mode, best }) {
   const owned = useGame((s) => s.rigsOwned[rig.id])
   const locked = useGame((s) => rig.reqLevel > s.facilityLevel)
 
@@ -80,6 +81,14 @@ export default function RigRow({ rig, mode }) {
   const heatShort = useGame(
     (s) => capacityAfterBuy(rig, Math.max(1, resolveBuyCount(rig, mode, s)), s).heatShort,
   )
+
+  // How long this purchase takes to repay itself. A finished string, so the
+  // selector returns a primitive and only re-renders when the wording changes.
+  const payback = useGame((s) => {
+    if (rig.reqLevel > s.facilityLevel) return ''
+    const seconds = paybackSeconds(rig, Math.max(1, resolveBuyCount(rig, mode, s)), s)
+    return Number.isFinite(seconds) ? formatDuration(seconds) : ''
+  })
 
   const [pulsing, setPulsing] = useState(false)
   const pulseTimer = useRef(null)
@@ -155,7 +164,7 @@ export default function RigRow({ rig, mode }) {
     .join(' ')
 
   // What the second line says, most useful thing first.
-  let meta = `+${fmt(rig.baseYield)}/s each`
+  let meta = `+${fmt(rig.baseYield)}/s each · +${rig.power * count}pw +${rig.heat * count}cl`
   let metaWarn = false
   if (locked) {
     meta = `Unlocks at ${FACILITIES[rig.reqLevel].name}`
@@ -177,6 +186,7 @@ export default function RigRow({ rig, mode }) {
         <span className="row-name" style={{ display: 'block' }}>
           {rig.name}
           {count > 1 && !locked ? ` ×${count}` : ''}
+          {best && !locked && <span className="best-tag">BEST VALUE</span>}
         </span>
         <span className={`row-meta${metaWarn ? ' warn' : ''}`} style={{ display: 'block' }}>
           {meta}
@@ -187,7 +197,7 @@ export default function RigRow({ rig, mode }) {
           {fmt(risingCost ?? cost)}
         </span>
         <span className="row-delta num" style={{ display: 'block' }}>
-          {locked ? `+${fmt(rig.baseYield)}/s` : `+${rig.power * count} pw +${rig.heat * count} cl`}
+          {locked ? `+${fmt(rig.baseYield)}/s` : payback ? `${payback} back` : '—'}
         </span>
       </span>
     </button>
