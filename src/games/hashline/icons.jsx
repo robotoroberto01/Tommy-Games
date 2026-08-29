@@ -153,6 +153,19 @@ const PATHS = {
     </>
   ),
 
+  // ---- the coin you tap ---------------------------------------------------
+  // A Bitcoin-style B: a stem with two bowls and four ticks crossing top and
+  // bottom. Drawn rather than borrowed, so it's Hashline's own coin and it
+  // matches the rest of the set instead of sitting in it as foreign artwork.
+  hashCoin: (
+    <>
+      <path d="M8 4.6v14.8" />
+      <path d="M8 4.6h5.6a3.3 3.3 0 0 1 0 6.6H8" />
+      <path d="M8 11.2h6.4a4.1 4.1 0 0 1 0 8.2H8" />
+      <path d="M11 2.1v2.5M15 2.1v2.5M11 19.4v2.5M15 19.4v2.5" />
+    </>
+  ),
+
   // ---- market -------------------------------------------------------------
   crate: (
     <>
@@ -185,6 +198,7 @@ const PATHS = {
       <path d="M7 7v3a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V7M12 13v4" />
     </>
   ),
+  arrowUp: <path d="M12 20V4M5 11l7-7 7 7" />,
   chevronRight: <path d="M9 5l7 7-7 7" />,
   chevronLeft: <path d="M15 5l-7 7 7 7" />,
   play: (
