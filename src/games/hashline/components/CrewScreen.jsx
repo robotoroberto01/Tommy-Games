@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { MANAGERS, MAX_MGR_LEVEL } from '../data.js'
 import { fmt } from '../format.js'
 import Icon from '../icons.jsx'
+import ScreenHeader from './ScreenHeader.jsx'
 import { levelUpManager, managerCost, useGame } from '../store.js'
 
 const RADIUS = 29
@@ -79,9 +80,7 @@ function CrewCard({ manager }) {
 export default function CrewScreen() {
   return (
     <>
-      <div className="screen-head">
-        <span className="screen-title">Crew</span>
-      </div>
+      <ScreenHeader title="Crew" />
       <div className="screen-note">
         Each level adds a permanent +50% to that person&apos;s rigs, up to Lv 5.
         The Operations Chief is the odd one out — instead of boosting rigs, they
