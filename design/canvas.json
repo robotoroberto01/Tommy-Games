@@ -1,0 +1,39 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Rigs (main)" },
+    { "file": "Market.dc.html", "x": 490, "y": 0, "w": 390, "h": 844, "title": "Market" },
+    { "file": "Icons.dc.html", "x": 980, "y": 0, "w": 760, "h": 640, "title": "Icon system" },
+    { "file": "Palette.dc.html", "x": 1840, "y": 0, "w": 760, "h": 560, "title": "Design tokens" }
+  ],
+  "annotations": [
+    {
+      "id": "why-the-list",
+      "x": 0,
+      "y": -300,
+      "w": 390,
+      "text": "THE CORE CHANGE\n\nThe orbit is gone. Rigs are a static list.\n\nThe orbit made buying a game of hitting a moving target — and it gets worse, not better: you see 3 rigs now, but 12 at the last site, all crossing each other.\n\nA list also has room to say things the orbit couldn't: how many you own, what each one earns, and what it costs you in power and heat BEFORE you buy."
+    },
+    {
+      "id": "ux-fixes",
+      "x": 490,
+      "y": -300,
+      "w": 390,
+      "text": "OTHER UX CHANGES\n\n• Tap moved to a fixed plate at thumb height. It never moves and never overlaps a label.\n\n• Capacity cost shown per row (+40 power, +52 cooling), and a row you can afford but shouldn't buy says so: \"needs +14 cooling — would throttle\". Today you only find that out from the ticker afterwards.\n\n• Next site shows TIME (~2d 1h at this rate), not a percentage bar that barely moves.\n\n• ×1 / ×10 / Max buying. At 42 Hand-Cranks, buying one at a time is busywork.\n\n• Shop split: spending gems is the screen, buying them is a second tab, and the two near-identical ad buttons become one."
+    },
+    {
+      "id": "icons-note",
+      "x": 980,
+      "y": -230,
+      "w": 760,
+      "text": "EMOJI OUT, DRAWN GLYPHS IN\n\nEmoji were the fastest way to ship, and they're the single biggest thing making it read as unfinished: they render differently on every device, they can't take your colours, and they sit on the baseline like text rather than aligning with the UI.\n\nTwo of the current ones aren't reliable emoji at all — Server Rack and Cold Room are bare Unicode symbols that fall back to a box on some devices.\n\nThese are SVG on one 24px grid at one stroke weight, so they inherit text colour and stay crisp at any size."
+    },
+    {
+      "id": "tokens-note",
+      "x": 1840,
+      "y": -230,
+      "w": 760,
+      "text": "THE SPEC I'M BUILDING TO\n\nThese are the exact values going into the code, so this artboard stays the reference once the app is updated.\n\nThe rule that does the work: one colour, one job. Yellow means \"you can act here\" and appears nowhere else — which is why an affordable rig row reads instantly against the ones you can't afford yet."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

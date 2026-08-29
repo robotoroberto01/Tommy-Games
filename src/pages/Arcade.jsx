@@ -40,7 +40,12 @@ export default function Arcade() {
         ))}
 
         <div className="arcade-soon">
-          <div className="arcade-soon-icon">✦</div>
+          <div className="arcade-soon-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                   strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </div>
           <div>
             <div className="arcade-soon-title">More coming</div>
             <div className="arcade-soon-text">

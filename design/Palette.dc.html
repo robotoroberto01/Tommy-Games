@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #ffd84d; } a:hover { color: #ffe680; }
+    .ui { font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
+    .num { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .sw { height: 52px; border-radius: 8px; }
+    .tok { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9.5px;
+           color: #f2f2f5; margin-top: 6px; letter-spacing: -0.02em; }
+    .hex { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; color: #6b6b7c; margin-top: 2px; }
+    .role { font-size: 10px; color: #8b8b9c; margin-top: 4px; line-height: 1.35; }
+    .sechead { font-size: 10.5px; font-weight: 700; color: #8b8b9c; letter-spacing: 0.12em; }
+    .rule { height: 1px; background: #23232e; flex: 1; }
+  </style>
+</helmet>
+
+<div class="ui" style="width: 760px; height: 560px; background: #0b0b10; color: #f2f2f5;
+     padding: 28px 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px;">
+
+  <div>
+    <div style="font-size: 21px; font-weight: 700; letter-spacing: -0.02em;">Design tokens</div>
+    <div style="font-size: 12.5px; color: #8b8b9c; margin-top: 5px; max-width: 82ch; line-height: 1.5;">
+      Every colour has exactly one job. That is the whole fix &mdash; the old palette used five saturated
+      accents interchangeably, so nothing stood out. Yellow means <em>you can act here</em> and appears
+      nowhere else; green only ever means income; red only ever means throttled.
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span class="sechead">COLOUR</span><div class="rule"></div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px;">
+    <div>
+      <div class="sw" style="background: #0b0b10; border: 1px solid #23232e;"></div>
+      <div class="tok">--bg</div><div class="hex">#0B0B10</div>
+      <div class="role">page</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #16161f;"></div>
+      <div class="tok">--surface</div><div class="hex">#16161F</div>
+      <div class="role">rows, meters</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #1e1b2e;"></div>
+      <div class="tok">--surface-alt</div><div class="hex">#1E1B2E</div>
+      <div class="role">goal card, gems</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #23232e;"></div>
+      <div class="tok">--line</div><div class="hex">#23232E</div>
+      <div class="role">dividers</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #ffd84d;"></div>
+      <div class="tok">--accent</div><div class="hex">#FFD84D</div>
+      <div class="role">affordable, primary action, coins</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #4ade80;"></div>
+      <div class="tok">--income</div><div class="hex">#4ADE80</div>
+      <div class="role">income only</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #fb7185;"></div>
+      <div class="tok">--warn</div><div class="hex">#FB7185</div>
+      <div class="role">throttled only</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #a78bfa;"></div>
+      <div class="tok">--gem</div><div class="hex">#A78BFA</div>
+      <div class="role">gems, sites</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;">
+    <div>
+      <div class="sw" style="background: #f2f2f5; height: 30px;"></div>
+      <div class="tok">--text</div><div class="hex">#F2F2F5</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #8b8b9c; height: 30px;"></div>
+      <div class="tok">--muted</div><div class="hex">#8B8B9C</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #6b6b7c; height: 30px;"></div>
+      <div class="tok">--dim</div><div class="hex">#6B6B7C</div>
+    </div>
+    <div>
+      <div class="sw" style="background: #5a5a68; height: 30px;"></div>
+      <div class="tok">--disabled</div><div class="hex">#5A5A68</div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span class="sechead">TYPE &amp; SHAPE</span><div class="rule"></div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 22px;">
+    <div>
+      <div style="font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;">Bricolage Grotesque</div>
+      <div style="font-size: 11px; color: #8b8b9c; margin-top: 6px; line-height: 1.5;">
+        All interface text. Weights 500 / 700 / 800 only. Replaces Inter and Space Grotesk.
+      </div>
+    </div>
+    <div>
+      <div class="num" style="font-size: 24px; font-weight: 700; letter-spacing: -0.03em; color: #ffd84d;">84,207</div>
+      <div style="font-size: 11px; color: #8b8b9c; margin-top: 8px; line-height: 1.5;">
+        JetBrains Mono, tabular figures, for every number that changes &mdash; so digits don&rsquo;t
+        jitter five times a second.
+      </div>
+    </div>
+    <div style="font-size: 11px; color: #8b8b9c; line-height: 1.7;">
+      <div><span style="color: #f2f2f5; font-weight: 700;">Radius</span> &nbsp;12px rows · 16px plate · 8px chips</div>
+      <div><span style="color: #f2f2f5; font-weight: 700;">Icons</span> &nbsp;24px grid, 2px stroke</div>
+      <div><span style="color: #f2f2f5; font-weight: 700;">Hit target</span> &nbsp;44px minimum</div>
+      <div><span style="color: #f2f2f5; font-weight: 700;">Gap</span> &nbsp;7px between rows</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
