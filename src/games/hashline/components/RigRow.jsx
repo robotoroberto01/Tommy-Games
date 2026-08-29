@@ -6,6 +6,7 @@ import {
   buyRig,
   bulkRigCost,
   capacityAfterBuy,
+  marginalRate,
   paybackSeconds,
   resolveBuyCount,
   useGame,
@@ -90,6 +91,16 @@ export default function RigRow({ rig, mode, best }) {
     return Number.isFinite(seconds) ? formatDuration(seconds) : ''
   })
 
+  // What this purchase would ACTUALLY do to your output. Crossing a ceiling
+  // isn't the same as being a bad buy: at 83/83 cooling, one more Hand-Crank
+  // loses you 0.41/s while one more GPU Rig still gains 1.05/s, and the old
+  // row painted both with the same red "would throttle".
+  const gain = useGame((s) =>
+    rig.reqLevel > s.facilityLevel
+      ? 0
+      : marginalRate(rig, Math.max(1, resolveBuyCount(rig, mode, s)), s),
+  )
+
   const [pulsing, setPulsing] = useState(false)
   const pulseTimer = useRef(null)
 
@@ -154,28 +165,44 @@ export default function RigRow({ rig, mode, best }) {
     frame.current = requestAnimationFrame(step)
   }
 
+  // Two separate signals, because they answer different questions:
+  //   afford -> you have the money (colours the price and the owned meter)
+  //   worth  -> buying it right now actually helps (the ring)
+  // Previously the ring meant "afford", so a row could wear the yellow
+  // act-here ring and a red don't-do-this warning at the same time.
+  const worth = afford && gain > 0
+
   const classes = [
     'row',
     locked ? 'locked' : '',
     afford ? 'afford' : '',
+    worth ? 'worth' : '',
     pulsing ? 'pulse' : '',
   ]
     .filter(Boolean)
     .join(' ')
 
   // What the second line says, most useful thing first.
+  // Three states, in order of how much you need to know about them. Whole units
+  // for the shortfalls — capacityAfterBuy already rounded them, and
+  // "+3.00 cooling" reads like a precision the number doesn't have.
+  const short = heatShort > 0
+    ? `${heatShort.toLocaleString()} cooling`
+    : `${powerShort.toLocaleString()} power`
+  const overCeiling = heatShort > 0 || powerShort > 0
+
   let meta = `+${fmt(rig.baseYield)}/s each · +${rig.power * count}pw +${rig.heat * count}cl`
-  let metaWarn = false
+  let metaTone = ''
   if (locked) {
     meta = `Unlocks at ${FACILITIES[rig.reqLevel].name}`
-  } else if (heatShort > 0) {
-    // Whole units — capacityAfterBuy already rounded these, and "+3.00 cooling"
-    // reads like a precision the number doesn't have.
-    meta = `Needs +${heatShort.toLocaleString()} cooling — would throttle`
-    metaWarn = true
-  } else if (powerShort > 0) {
-    meta = `Needs +${powerShort.toLocaleString()} power — would throttle`
-    metaWarn = true
+  } else if (overCeiling && gain <= 0) {
+    // Genuinely don't buy this — it would leave you earning less than now.
+    meta = `Would lower your output — add ${short} first`
+    metaTone = 'warn'
+  } else if (overCeiling) {
+    // Over a ceiling but still ahead. Worth saying, not worth alarming about.
+    meta = `Adds +${fmt(gain)}/s after throttling`
+    metaTone = 'soft'
   }
 
   return (
@@ -188,7 +215,7 @@ export default function RigRow({ rig, mode, best }) {
           {count > 1 && !locked ? ` ×${count}` : ''}
           {best && !locked && <span className="best-tag">BEST VALUE</span>}
         </span>
-        <span className={`row-meta${metaWarn ? ' warn' : ''}`} style={{ display: 'block' }}>
+        <span className={`row-meta${metaTone ? ' ' + metaTone : ''}`} style={{ display: 'block' }}>
           {meta}
         </span>
       </span>
