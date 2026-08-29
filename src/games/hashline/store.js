@@ -592,6 +592,57 @@ export function capacityAfterBuy(rig, count, s = state) {
   }
 }
 
+/**
+ * How much income buying `count` more would ACTUALLY add.
+ *
+ * Not just baseYield x count. It runs the real rate calculation over a copy of
+ * state with the purchase applied, so it already accounts for the crew
+ * multiplier on that rig's group and — importantly — for throttling. A rig that
+ * pushes you past a ceiling can add almost nothing, or make things worse, and
+ * this is the only way to see that before buying.
+ */
+export function marginalRate(rig, count, s = state) {
+  const after = {
+    ...s,
+    rigsOwned: { ...s.rigsOwned, [rig.id]: s.rigsOwned[rig.id] + count },
+  }
+  return ratePerSec(after) - ratePerSec(s)
+}
+
+/**
+ * How long this purchase takes to pay for itself, in seconds.
+ *
+ * This is the number that actually answers "what should I buy next", and it is
+ * NOT the same as the cheapest option. A Hand-Crank at 39.90 earning 0.10/s
+ * takes 6m 39s to repay; a USB Miner at 157.41 earning 0.65/s takes 4m 2s. The
+ * cheaper one is the worse buy.
+ *
+ * Infinity when the purchase would add nothing — which happens when it would
+ * throttle you.
+ */
+export function paybackSeconds(rig, count, s = state) {
+  const gain = marginalRate(rig, count, s)
+  if (gain <= 0) return Infinity
+  return bulkRigCost(rig, count, s) / gain
+}
+
+/**
+ * Unlocked rigs ordered by how fast they pay back, best first.
+ *
+ * Rigs that would throttle you are left out entirely rather than ranked last —
+ * they aren't a worse buy, they're a bad one, and the row already says so.
+ */
+export function valueRanking(mode, s = state) {
+  return RIGS.filter((rig) => rig.reqLevel <= s.facilityLevel)
+    .map((rig) => ({
+      id: rig.id,
+      payback: paybackSeconds(rig, Math.max(1, resolveBuyCount(rig, mode, s)), s),
+    }))
+    .filter((entry) => Number.isFinite(entry.payback))
+    .sort((a, b) => a.payback - b.payback)
+    .map((entry) => entry.id)
+}
+
 export function buyRig(rig, count = 1) {
   const n = Math.max(0, Math.floor(count))
   if (n === 0) return

@@ -509,6 +509,26 @@
     margin-top: 3px;
   }
 
+  /* Marks the rig that repays itself fastest.
+     Deliberately NOT a green/amber/red ring across all rows. The ring is
+     already the affordability signal, and green and red already mean income
+     and throttled — a value traffic-light would collide with all three. One
+     tag on the single best option answers the same question without spending
+     any of that. */
+  .best-tag {
+    display: inline-block;
+    margin-left: 7px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    vertical-align: 2px;
+  }
+
   /* -------------------------------------------------------------- tap coin */
   .tap-wrap {
     padding: 10px 16px 0;
